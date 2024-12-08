@@ -1,0 +1,489 @@
+
+#Dataset 1
+
+#loading dataset
+
+fish <- read.csv("/Users/amey/Documents/PGDBA Class/ISI/Subjects/SSD/Assignment/Fish.csv", sep=",")
+#link-https://www.kaggle.com/datasets/vipullrathod/fish-market
+
+##Univariate Analysis
+
+#1. Data Overview
+
+head(fish)
+str(fish)
+
+#2. Summary Statistics
+
+
+print(paste("Mean:", mean(fish$Length1)))
+print(paste("Median:", median(fish$Length1)))
+print(paste("Standard Deviation:", sd(fish$Length1)))
+print(paste("Minimum:", min(fish$Length1)))
+print(paste("Maximum:", max(fish$Length1)))
+
+#3. Distribution Visualization
+
+#Histogram
+
+hist(fish$Length1, main = "Histogram of Length 1", xlab  = "Length 1", col = "lightblue", border = "black", breaks="FD")
+
+
+#BoxPlot
+#boxplot(wine_quality$volatile.acidity, main = "Boxplot of Volatile Acidity", ylab = "Volatile Acidity", col = "lightgreen")
+boxplot(fish$Length1, main = "Boxplot of Length 1", ylab = "Length 1", col = "lightgreen")
+
+#4. Bar Plot
+library (ggplot2)
+ggplot(fish, aes(x = factor(Species))) +
+  geom_bar(fill = "turquoise") +
+  labs(title = "Distribution of Species", x = "Specie", y = "Count") +
+  theme_minimal()
+
+# Multivariate Analysis
+
+#5. Correlation Analysis
+correlation_coefficient <- cor(fish$Weight, fish$Height, method = "pearson")
+print(paste("Pearson Correlation Coefficient Weight and Length 3:", correlation_coefficient))
+
+#6. Scatter Plot Visualization
+
+ggplot(fish, aes(x = Height, y = Weight)) +
+  geom_point(color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Scatter Plot of Weight vs Length3", x = "Length3", y = "Weight") +
+  theme_minimal()
+
+#7. Multiple Regression
+
+# Fit a linear regression model
+
+model <- lm(Weight ~ Height + Length2, data = fish)
+summary(model)
+
+plot(model$fitted.values, model$residuals, 
+     main = "Residuals vs Fitted", 
+     xlab = "Fitted Values", 
+     ylab = "Residuals")
+abline(h = 0, col = "red")
+
+#8. Model Diagnostics
+
+# Normal Q-Q plot to check for normality of residuals
+qqnorm(model$residuals)
+qqline(model$residuals, col = "red")
+
+# Create residuals vs leverage plot
+plot(model, which = 5)
+
+#Plotting Residuals vs Fit
+# Basic residuals vs fitted plot
+plot(model$fitted.values, model$residuals,
+     xlab = "Fitted Values",
+     ylab = "Residuals",
+     main = "Residuals vs Fitted Values")
+abline(h = 0, lty = 2)  # Add horizontal reference line
+
+#Advanced Analysis
+
+#9. Principal Component Analysis (PCA)
+numerical_data <- fish[, c("Length1", "Length2", "Length3", "Height", "Width")]
+
+# Standardize the data
+data_scaled <- scale(numerical_data)
+
+# Perform PCA
+pca_result <- prcomp(data_scaled, center = TRUE, scale. = TRUE)
+
+# Summary of PCA to see explained variance
+summary(pca_result)
+
+library(factoextra)
+
+#Scree-Plot
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 100))
+
+#Bi-Plot
+fviz_pca_biplot(pca_result, 
+                repel = FALSE,
+                col.var = "blue",     # Color for variable vectors
+                col.ind = "red",      # Color for individual points
+                invisible = "ind")    # Hide individual vectors#Loadings
+pca_result$rotation
+
+
+
+
+#Dataset 2
+
+#https://www.kaggle.com/datasets/camnugent/california-housing-prices
+
+calhousing <- read.csv("/Users/amey/Documents/PGDBA Class/ISI/Subjects/SSD/Assignment/housing.csv", sep=",")
+
+##Univariate Analysis
+
+#1. Data Overview
+
+head(calhousing)
+str(calhousing)
+
+#checking for nulls
+sum(is.na(calhousing))
+
+#returns 207 nulls in the total_bedrooms column, out of 20640 values
+
+#removing null values
+calhousing <- na.omit(calhousing)
+sum(is.na(calhousing))
+
+
+
+#2. Summary Statistics
+
+#Summary Statistics for Total Rooms per Block
+
+print(paste("Mean:", mean(calhousing$housing_median_age)))
+print(paste("Median:", median(calhousing$housing_median_age)))
+print(paste("Standard Deviation:", sd(calhousing$housing_median_age)))
+print(paste("Minimum:", min(calhousing$housing_median_age)))
+print(paste("Maximum:", max(calhousing$housing_median_age)))
+
+
+#3. Distribution Visualization
+
+#Histogram
+
+hist(calhousing$housing_median_age, main = "Histogram of Median House Age", xlab  = "Median Age", col = "lightblue", border = "black", breaks="sturges")
+
+#BoxPlot
+boxplot(calhousing$housing_median_age, main = "Box-Plot of Median House Age", xlab  = "Median Age", col = "lightgreen")
+
+#4. Bar Plot
+calhousing$ocean_proximity <- factor(calhousing$ocean_proximity, levels = c("INLAND", "NEAR BAY", "NEAR OCEAN", "<1H OCEAN", "ISLAND"))
+
+# Create the plot
+ggplot(calhousing, aes(x = ocean_proximity)) +
+  geom_bar(fill = "turquoise") +
+  labs(title = "Distribution of Ocean Promximity", x = "Ocean Proximity", y = "Count") +
+  theme_minimal()
+
+# Multivariate Analysis
+
+#5. Correlation Analysis
+
+
+correlation_coefficient <- cor(calhousing$median_house_value, calhousing$median_income, method = "pearson")
+print(paste("Pearson Correlation Coefficient Median Income Level and Median House Value:", correlation_coefficient))
+
+#6. Scatter Plot Visualization
+
+ggplot(calhousing, aes(x = median_house_value, y = median_income)) +
+  geom_point(color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Scatter Plot of Median Income Level vs Median House Value", x = "median_income", y = "median_house_value") +
+  theme_minimal()
+
+#7. Multiple Regression
+
+# Fit a linear regression model
+
+model2 <- lm(median_house_value ~ median_income + population, data = calhousing)
+summary(model2)
+
+plot(model2$fitted.values, model2$residuals, 
+     main = "Residuals vs Fitted", 
+     xlab = "Fitted Values", 
+     ylab = "Residuals")
+abline(h = 0, col = "red")
+
+#8. Model Diagnostics
+
+# Normal Q-Q plot to check for normality of residuals
+qqnorm(model2$residuals)
+qqline(model2$residuals, col = "red")
+
+# Create residuals vs leverage plot
+plot(model2, which = 5)
+
+#Plotting Residuals vs Fit
+# Basic residuals vs fitted plot
+plot(model2$fitted.values, model2$residuals,
+     xlab = "Fitted Values",
+     ylab = "Residuals",
+     main = "Residuals vs Fitted Values")
+abline(h = 0, lty = 2)  # Add horizontal reference line
+
+#Advanced Analysis
+
+#9. Principal Component Analysis (PCA)
+numerical_data <- calhousing[, c("housing_median_age", "total_rooms", "total_bedrooms", "population", "households","median_income")]
+
+# Standardize the data
+data_scaled <- scale(numerical_data)
+
+# Perform PCA
+pca_result <- prcomp(data_scaled, center = TRUE, scale. = TRUE)
+
+# Summary of PCA to see explained variance
+summary(pca_result)
+
+
+#library(factoextra)
+
+#Scree-Plot
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 100))
+
+#Bi-Plot
+fviz_pca_biplot(pca_result, 
+                repel = FALSE,
+                col.var = "blue",     # Color for variable vectors
+                col.ind = "red",      # Color for individual points
+                invisible = "ind",    # Hide individual vectors
+)    # Hide individual vectors#Loadings
+
+#Loadings
+pca_result$rotation
+
+
+
+
+
+#Dataset 3
+
+#getting Carseats package from ISLR Package
+
+#install.packages("ISLR")
+library(ISLR)
+
+#https://cran.r-project.org/web/packages/ISLR/ISLR.pdf
+
+#loading dataset
+data("Carseats")
+
+##Univariate Analysis
+
+#1. Data Overview
+
+head(Carseats)
+str(Carseats)
+
+#2. Summary Statistics
+
+#Summary Statistics for Price of Carseat at different sites
+
+print(paste("Mean:", mean(Carseats$Price)))
+print(paste("Median:", median(Carseats$Price)))
+print(paste("Standard Deviation:", sd(Carseats$Price)))
+print(paste("Minimum:", min(Carseats$Price)))
+print(paste("Maximum:", max(Carseats$Price)))
+
+
+#3. Distribution Visualization
+
+#Histogram
+
+hist(Carseats$Price, main = "Histogram of Price of Carseats", xlab  = "Price", col = "lightblue", border = "black", breaks="fd")
+
+#BoxPlot
+boxplot(Carseats$Price, main = "Boxplot of Price of Carseats", ylab = "Price", col = "lightgreen")
+
+#4. Bar Plot
+
+Carseats$ShelveLoc <- factor(Carseats$ShelveLoc, levels = c("Bad", "Medium", "Good"))
+
+# Create the plot
+ggplot(Carseats, aes(x = ShelveLoc)) +
+  geom_bar(fill = "turquoise") +
+  labs(title = "Distribution of ShelveLoc", x = "Cut", y = "Count") +
+  theme_minimal()
+
+# Multivariate Analysis
+
+#5. Correlation Analysis
+
+#Correlation between Price and Diamond dimension (width)
+
+correlation_coefficient <- cor(Carseats$Sales, Carseats$Price, method = "pearson")
+print(paste("Pearson Correlation Coefficient between Sales and Advertising:", correlation_coefficient))
+
+#6. Scatter Plot Visualization
+
+ggplot(Carseats, aes(x = Price, y = Sales )) +
+  geom_point(color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Scatter Plot of Sales vs Price", x = "Price", y = "Sales") +
+  theme_minimal()
+
+#7. Multiple Regression
+
+# Fit a linear regression model
+
+model3 <- lm(Sales ~ Price + Advertising, data = Carseats)
+summary(model3)
+
+plot(model3$fitted.values, model3$residuals, 
+     main = "Residuals vs Fitted", 
+     xlab = "Fitted Values", 
+     ylab = "Residuals")
+abline(h = 0, col = "red")
+
+#8. Model Diagnostics
+
+# Normal Q-Q plot to check for normality of residuals
+qqnorm(model3$residuals)
+qqline(model3$residuals, col = "red")
+
+# Histogram of residuals to further check normality
+hist(model3$residuals, breaks = 30, main = "Histogram of Residuals", xlab = "Residuals", col = "lightblue")
+
+# Create residuals vs leverage plot
+plot(model3, which = 5)
+
+#Advanced Analysis
+
+#9. Principal Component Analysis (PCA)
+numerical_data <- Carseats[, c("CompPrice","Income","Advertising","Population","Price","Age","Education")]
+
+# Standardize the data
+data_scaled <- scale(numerical_data)
+
+# Perform PCA
+pca_result <- prcomp(data_scaled, center = TRUE, scale. = TRUE)
+
+# Summary of PCA to see explained variance
+summary(pca_result)
+
+#Scree-Plot
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 100))
+
+#Bi-Plot
+fviz_pca_biplot(pca_result, repel = TRUE,
+                col.var = "blue", # Color for variable vectors
+                col.ind = "red",
+                invisible = "ind"  )  # Hide individual vectors)  # Color for individual points
+#Loadings
+pca_result$rotation
+
+
+
+
+#Dataset 4
+
+#getting Auto package from ISLR Package
+
+#install.packages("ISLR")
+library(ISLR)
+
+#https://cran.r-project.org/web/packages/ISLR/ISLR.pdf
+
+#loading dataset
+data("Auto")
+
+##Univariate Analysis
+
+#1. Data Overview
+
+head(Auto)
+str(Auto)
+
+#2. Summary Statistics
+
+#Summary Statistics for Price of Carseat at different sites
+Auto
+print(paste("Mean:", mean(Auto$horsepower)))
+print(paste("Median:", median(Auto$horsepower)))
+print(paste("Standard Deviation:", sd(Auto$horsepower)))
+print(paste("Minimum:", min(Auto$horsepower)))
+print(paste("Maximum:", max(Auto$horsepower)))
+
+#3. Distribution Visualization
+
+#Histogram
+
+hist(Auto$horsepower, main = "Histogram of Car Horsepower", xlab  = "Horsepower", col = "lightblue", border = "black", breaks="fd")
+
+#BoxPlot
+boxplot(Auto$horsepower, main = "Boxplot of Car Horsepower", ylab = "Horsepower", col = "lightgreen")
+
+#4. Bar Plot
+
+#Bar plot of Origin of Car - 1. American, 2. European, 3. Japanese
+
+library(ggplot2)
+Auto$origin <- factor(Auto$origin, 
+                      levels = c(1, 2, 3), 
+                      labels = c("American", "European", "Japanese"))
+
+# Create the plot
+ggplot(Auto, aes(x = origin)) +
+  geom_bar(fill = "turquoise") +
+  labs(title = "Distribution of Origin", x = "Origin Country", y = "Count") +
+  theme_minimal()
+
+# Multivariate Analysis
+
+#5. Correlation Analysis
+
+#Correlation between Price and Diamond dimension (width)
+
+correlation_coefficient <- cor(Auto$mpg, Auto$weight, method = "pearson")
+print(paste("Pearson Correlation Coefficient between Car Weight and Mileage (mpg):", correlation_coefficient))
+
+#6. Scatter Plot Visualization
+
+ggplot(Auto, aes(x = weight, y = mpg )) +
+  geom_point(color = "blue") +
+  geom_smooth(method = "lm", se = FALSE, color = "red") +
+  labs(title = "Scatter Plot of Car Weight and Mileage (mpg)", x = "Car Weight", y = "Mileage (mpg)") +
+  theme_minimal()
+
+#7. Multiple Regression
+
+# Fit a linear regression model
+
+model4 <- lm(mpg ~ weight + horsepower, data = Auto)
+summary(model4)
+
+plot(model4$fitted.values, model4$residuals, 
+     main = "Residuals vs Fitted", 
+     xlab = "Fitted Values", 
+     ylab = "Residuals")
+abline(h = 0, col = "red")
+
+#8. Model Diagnostics
+
+# Normal Q-Q plot to check for normality of residuals
+qqnorm(model4$residuals)
+qqline(model4$residuals, col = "red")
+
+# Histogram of residuals to further check normality
+hist(model4$residuals, breaks = 30, main = "Histogram of Residuals", xlab = "Residuals", col = "lightblue")
+
+# Create residuals vs leverage plot
+plot(model4, which = 5)
+
+#Advanced Analysis
+
+#9. Principal Component Analysis (PCA)
+numerical_data <- Auto[, c("cylinders","displacement","horsepower","weight","acceleration","year")]
+
+# Standardize the data
+data_scaled <- scale(numerical_data)
+
+# Perform PCA
+pca_result <- prcomp(data_scaled, center = TRUE, scale. = TRUE)
+
+# Summary of PCA to see explained variance
+summary(pca_result)
+
+library(factoextra)
+#Scree-Plot
+fviz_eig(pca_result, addlabels = TRUE, ylim = c(0, 100))
+
+#Bi-Plot
+fviz_pca_biplot(pca_result, repel = TRUE,
+                col.var = "blue", # Color for variable vectors
+                col.ind = "red",
+                invisible = "ind")  # Color for individual points
+#Loadings
+pca_result$rotation
